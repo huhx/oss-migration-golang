@@ -15,3 +15,8 @@ type ListResponse struct {
 	IsUsed       bool
 	MarkdownName *string
 }
+type PlanResponse struct {
+	ImageName string
+	Path      string
+	ImageIn   string
+}
