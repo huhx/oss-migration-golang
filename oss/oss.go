@@ -13,5 +13,5 @@ type ListResponse struct {
 	CreateTime   time.Time
 	ImageSize    int64
 	IsUsed       bool
-	MarkdownName string
+	MarkdownName *string
 }

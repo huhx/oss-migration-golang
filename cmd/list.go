@@ -38,7 +38,7 @@ var listCmd = &cobra.Command{
 						CreateTime:   stat.ModTime(),
 						ImageSize:    stat.Size(),
 						IsUsed:       markdownName != nil,
-						MarkdownName: *markdownName,
+						MarkdownName: markdownName,
 					}
 				})
 
@@ -52,7 +52,10 @@ var listCmd = &cobra.Command{
 						v.CreateTime.Format("2006-01-02 15:04:05"),
 						util.BytesToKBString(v.ImageSize),
 						strconv.FormatBool(v.IsUsed),
-						v.MarkdownName,
+						lo.TernaryF(v.MarkdownName == nil,
+							func() string { return "" },
+							func() string { return *v.MarkdownName },
+						),
 					})
 				}
 				table.Render()
