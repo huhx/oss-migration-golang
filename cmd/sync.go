@@ -1,0 +1,47 @@
+package cmd
+
+import (
+	"fmt"
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"os"
+	"oss-migration/setting"
+	"oss-migration/util"
+	"path/filepath"
+)
+
+// syncCmd represents the sync command
+var syncCmd = &cobra.Command{
+	Use:   "sync",
+	Short: "A brief description of your command",
+	Run: func(cmd *cobra.Command, args []string) {
+		current := viper.GetString("current")
+		if current == setting.Local {
+			path := viper.GetString("local.path")
+			files, err := util.Lookup(path)
+			if err == nil {
+				resources := util.ResourceFilter(&files)
+				markdownFiles := util.MarkdownFilter(&files)
+				imagesInFile := util.ImageNames(&markdownFiles)
+
+				abandonResources := lo.Filter(resources, func(item string, index int) bool {
+					imageName := filepath.Base(item)
+					markdownName := util.FromMarkdown(imagesInFile, imageName)
+					return markdownName == nil
+				})
+
+				for _, resource := range abandonResources {
+					err := os.Remove(resource)
+					if err == nil {
+						fmt.Printf("%s in %s is removed.", filepath.Base(resource), resource)
+					}
+				}
+			}
+		}
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(syncCmd)
+}
