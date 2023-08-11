@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -42,17 +43,21 @@ var planCmd = &cobra.Command{
 					}
 				})
 
-				table := tablewriter.NewWriter(os.Stdout)
-				table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.PlanResponse{})))
+				if len(result) > 0 {
+					table := tablewriter.NewWriter(os.Stdout)
+					table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.PlanResponse{})))
 
-				for _, v := range result {
-					table.Append([]string{
-						v.ImageName,
-						v.Path,
-						v.ImageIn,
-					})
+					for _, v := range result {
+						table.Append([]string{
+							v.ImageName,
+							v.Path,
+							v.ImageIn,
+						})
+					}
+					table.Render()
+				} else {
+					fmt.Println("All the images are synced.")
 				}
-				table.Render()
 			}
 		}
 	},

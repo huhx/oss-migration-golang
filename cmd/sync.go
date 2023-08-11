@@ -31,10 +31,15 @@ var syncCmd = &cobra.Command{
 					return markdownName == nil
 				})
 
+				if len(abandonResources) < 1 {
+					fmt.Println("All the data are synced.")
+					return
+				}
+
 				for _, resource := range abandonResources {
 					err := os.Remove(resource)
 					if err == nil {
-						fmt.Printf("%s in %s is removed.", filepath.Base(resource), resource)
+						fmt.Printf("%s in %s is removed.\n", filepath.Base(resource), resource)
 					}
 				}
 			}

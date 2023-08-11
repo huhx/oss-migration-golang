@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -41,6 +42,11 @@ var listCmd = &cobra.Command{
 						MarkdownName: markdownName,
 					}
 				})
+
+				if len(result) < 1 {
+					fmt.Println("No data")
+					return
+				}
 
 				table := tablewriter.NewWriter(os.Stdout)
 				table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.ListResponse{})))
