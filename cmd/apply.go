@@ -26,8 +26,8 @@ var applyCmd = &cobra.Command{
 
 				abandonResources := lo.Filter(resources, func(item string, index int) bool {
 					imageName := filepath.Base(item)
-					markdownName := util.FromMarkdown(imagesInFile, imageName)
-					return markdownName == nil
+					markdownImage := util.FromMarkdown(imagesInFile, imageName)
+					return markdownImage == nil
 				})
 
 				if len(abandonResources) < 1 {

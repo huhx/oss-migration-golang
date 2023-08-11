@@ -31,15 +31,17 @@ var listCmd = &cobra.Command{
 				result := lo.Map(resources, func(item string, index int) oss.ListResponse {
 					imageName := filepath.Base(item)
 					stat, _ := os.Stat(item)
-					markdownName := util.FromMarkdown(imagesInFile, imageName)
+					markdownImage := util.FromMarkdown(imagesInFile, imageName)
 
 					return oss.ListResponse{
 						ImageName:    imageName,
 						ImagePath:    item,
 						CreateTime:   stat.ModTime(),
 						ImageSize:    stat.Size(),
-						IsUsed:       markdownName != nil,
-						MarkdownName: markdownName,
+						IsUsed:       markdownImage != nil,
+						MarkdownName: &markdownImage.MarkdownName,
+						LineNumber:   &markdownImage.LineNumber,
+						ImageTag:     &markdownImage.ImageTag,
 					}
 				})
 
@@ -58,6 +60,14 @@ var listCmd = &cobra.Command{
 						v.CreateTime.Format("2006-01-02 15:04:05"),
 						util.BytesToKBString(v.ImageSize),
 						strconv.FormatBool(v.IsUsed),
+						lo.TernaryF(v.ImageTag == nil,
+							func() string { return "" },
+							func() string { return *v.ImageTag },
+						),
+						lo.TernaryF(v.LineNumber == nil,
+							func() string { return "0" },
+							func() string { return strconv.Itoa(*v.LineNumber) },
+						),
 						lo.TernaryF(v.MarkdownName == nil,
 							func() string { return "" },
 							func() string { return *v.MarkdownName },

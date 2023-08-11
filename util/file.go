@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/samber/lo"
 	"os"
@@ -63,36 +64,49 @@ func ImageNames(paths *[]string) []oss.MarkdownImage {
 	return images
 }
 
-func FromMarkdown(images []oss.MarkdownImage, image string) *string {
+func FromMarkdown(images []oss.MarkdownImage, image string) *oss.MarkdownImage {
 	for _, markdownImage := range images {
 		if markdownImage.ImageName == image {
-			return &markdownImage.MarkdownName
+			return &markdownImage
 		}
 	}
 	return nil
 }
 
 func ExtractImageNames(path string) []oss.MarkdownImage {
-	markdownContent, err := os.ReadFile(path)
+	imagePattern := regexp.MustCompile(`!\[(.*)]\(([^)]+)\)`)
+
+	file, err := os.Open(path)
 	if err != nil {
 		fmt.Println("Error reading Markdown file:", err)
 		return nil
 	}
 
-	imageTagPattern := regexp.MustCompile(`!\[.*]\(([^)]+)\)`)
-	imageTags := imageTagPattern.FindAllStringSubmatch(string(markdownContent), -1)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	lineNumber := 0
 
 	var markdownImages []oss.MarkdownImage
-	for _, tag := range imageTags {
-		if len(tag) > 1 {
-			imagePath := tag[1]
+
+	for scanner.Scan() {
+		lineNumber++
+		line := scanner.Text()
+
+		if matches := imagePattern.FindStringSubmatch(line); len(matches) > 0 {
+			imagePath := matches[2]
 			imageName := imagePath[strings.LastIndex(imagePath, "/")+1:]
+			imageTag := matches[1]
 			markdownImages = append(markdownImages, oss.MarkdownImage{
 				ImageName:    imageName,
 				MarkdownName: path,
+				LineNumber:   lineNumber,
+				ImageTag:     imageTag,
 			})
 		}
+
 	}
+
 	return markdownImages
 }
 
