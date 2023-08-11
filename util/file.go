@@ -7,6 +7,7 @@ import (
 	"oss-migration/oss"
 	"path"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -98,4 +99,12 @@ func ExtractImageNames(path string) []oss.MarkdownImage {
 func BytesToKBString(bytes int64) string {
 	kb := float64(bytes) / 1024
 	return strconv.FormatFloat(kb, 'f', 2, 64) + " KB"
+}
+
+func GetStructFieldNames(structType reflect.Type) []string {
+	var fieldNames []string
+	for i := 0; i < structType.NumField(); i++ {
+		fieldNames = append(fieldNames, structType.Field(i).Name)
+	}
+	return fieldNames
 }

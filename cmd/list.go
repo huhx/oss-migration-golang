@@ -10,6 +10,7 @@ import (
 	"oss-migration/setting"
 	"oss-migration/util"
 	"path/filepath"
+	"reflect"
 	"strconv"
 )
 
@@ -42,7 +43,7 @@ var listCmd = &cobra.Command{
 				})
 
 				table := tablewriter.NewWriter(os.Stdout)
-				table.SetHeader([]string{"ImageName", "ImagePath", "CreateTime", "ImageSize", "IsUsed", "MarkdownName"})
+				table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.ListResponse{})))
 
 				for _, v := range result {
 					table.Append([]string{
