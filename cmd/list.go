@@ -16,7 +16,7 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
+	Use:   "ls",
 	Short: "List the resources from local or remote",
 	Run: func(cmd *cobra.Command, args []string) {
 		current := viper.GetString("current")

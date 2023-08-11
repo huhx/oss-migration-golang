@@ -11,9 +11,8 @@ import (
 	"path/filepath"
 )
 
-// syncCmd represents the sync command
-var syncCmd = &cobra.Command{
-	Use:   "sync",
+var applyCmd = &cobra.Command{
+	Use:   "apply",
 	Short: "A brief description of your command",
 	Run: func(cmd *cobra.Command, args []string) {
 		current := viper.GetString("current")
@@ -48,5 +47,5 @@ var syncCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(applyCmd)
 }
