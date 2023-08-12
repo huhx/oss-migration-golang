@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"os"
-	"oss-migration/oss"
+	"oss-migration/model"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -55,8 +55,8 @@ func MarkdownFilter(paths *[]string) []string {
 	})
 }
 
-func ImageNames(paths *[]string) []oss.MarkdownImage {
-	var images []oss.MarkdownImage
+func ImageNames(paths *[]string) []model.MarkdownImage {
+	var images []model.MarkdownImage
 
 	for _, imagePath := range *paths {
 		images = append(images, ExtractImageNames(imagePath)...)
@@ -64,7 +64,7 @@ func ImageNames(paths *[]string) []oss.MarkdownImage {
 	return images
 }
 
-func FromMarkdown(images []oss.MarkdownImage, image string) *oss.MarkdownImage {
+func FromMarkdown(images []model.MarkdownImage, image string) *model.MarkdownImage {
 	for _, markdownImage := range images {
 		if markdownImage.ImageName == image {
 			return &markdownImage
@@ -73,7 +73,7 @@ func FromMarkdown(images []oss.MarkdownImage, image string) *oss.MarkdownImage {
 	return nil
 }
 
-func ExtractImageNames(path string) []oss.MarkdownImage {
+func ExtractImageNames(path string) []model.MarkdownImage {
 	imagePattern := regexp.MustCompile(`!\[(.*)]\(([^)]+)\)`)
 
 	file, err := os.Open(path)
@@ -87,7 +87,7 @@ func ExtractImageNames(path string) []oss.MarkdownImage {
 	scanner := bufio.NewScanner(file)
 	lineNumber := 0
 
-	var markdownImages []oss.MarkdownImage
+	var markdownImages []model.MarkdownImage
 
 	for scanner.Scan() {
 		lineNumber++
@@ -97,7 +97,7 @@ func ExtractImageNames(path string) []oss.MarkdownImage {
 			imagePath := matches[2]
 			imageName := imagePath[strings.LastIndex(imagePath, "/")+1:]
 			imageTag := matches[1]
-			markdownImages = append(markdownImages, oss.MarkdownImage{
+			markdownImages = append(markdownImages, model.MarkdownImage{
 				ImageName:    imageName,
 				MarkdownName: path,
 				LineNumber:   lineNumber,

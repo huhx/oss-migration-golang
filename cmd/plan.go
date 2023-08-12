@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"oss-migration/oss"
+	"oss-migration/model"
 	"oss-migration/setting"
 	"oss-migration/util"
 	"path/filepath"
@@ -33,10 +33,10 @@ var planCmd = &cobra.Command{
 					return markdownImage == nil
 				})
 
-				result := lo.Map(abandonResources, func(item string, index int) oss.PlanResponse {
+				result := lo.Map(abandonResources, func(item string, index int) model.PlanResponse {
 					imageName := filepath.Base(item)
 
-					return oss.PlanResponse{
+					return model.PlanResponse{
 						ImageName: imageName,
 						Path:      item,
 						ImageIn:   "local",
@@ -45,7 +45,7 @@ var planCmd = &cobra.Command{
 
 				if len(result) > 0 {
 					table := tablewriter.NewWriter(os.Stdout)
-					table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.PlanResponse{})))
+					table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(model.PlanResponse{})))
 
 					for _, v := range result {
 						table.Append([]string{

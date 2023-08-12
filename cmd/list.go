@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/olekukonko/tablewriter"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-	"oss-migration/oss"
+	"oss-migration/model"
 	"oss-migration/setting"
 	"oss-migration/util"
 	"path/filepath"
@@ -28,12 +29,12 @@ var listCmd = &cobra.Command{
 				markdownFiles := util.MarkdownFilter(&files)
 				imagesInFile := util.ImageNames(&markdownFiles)
 
-				result := lo.Map(resources, func(item string, index int) oss.ListResponse {
+				result := lo.Map(resources, func(item string, index int) model.ListResponse {
 					imageName := filepath.Base(item)
 					stat, _ := os.Stat(item)
 					markdownImage := util.FromMarkdown(imagesInFile, imageName)
 
-					return oss.ListResponse{
+					return model.ListResponse{
 						ImageName:  imageName,
 						ImagePath:  item,
 						CreateTime: stat.ModTime(),
@@ -57,7 +58,7 @@ var listCmd = &cobra.Command{
 				}
 
 				table := tablewriter.NewWriter(os.Stdout)
-				table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(oss.ListResponse{})))
+				table.SetHeader(util.GetStructFieldNames(reflect.TypeOf(model.ListResponse{})))
 
 				for _, v := range result {
 					table.Append([]string{
@@ -81,6 +82,20 @@ var listCmd = &cobra.Command{
 					})
 				}
 				table.Render()
+			}
+		} else {
+			client, _ := oss.New(
+				viper.GetString("remote.endpoint"),
+				viper.GetString("remote.accessKeyId"),
+				viper.GetString("remote.accessKeySecret"),
+			)
+
+			bucket, _ := client.Bucket(viper.GetString("remote.bucketName"))
+
+			lsRes, _ := bucket.ListObjects(oss.Prefix(viper.GetString("remote.folder")))
+
+			for _, object := range lsRes.Objects {
+				fmt.Println("Objects:", object.Key)
 			}
 		}
 	},
