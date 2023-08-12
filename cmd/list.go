@@ -34,14 +34,20 @@ var listCmd = &cobra.Command{
 					markdownImage := util.FromMarkdown(imagesInFile, imageName)
 
 					return oss.ListResponse{
-						ImageName:    imageName,
-						ImagePath:    item,
-						CreateTime:   stat.ModTime(),
-						ImageSize:    stat.Size(),
-						IsUsed:       markdownImage != nil,
-						MarkdownName: &markdownImage.MarkdownName,
-						LineNumber:   &markdownImage.LineNumber,
-						ImageTag:     &markdownImage.ImageTag,
+						ImageName:  imageName,
+						ImagePath:  item,
+						CreateTime: stat.ModTime(),
+						ImageSize:  stat.Size(),
+						IsUsed:     markdownImage != nil,
+						MarkdownName: lo.TernaryF(markdownImage == nil, func() *string { return nil }, func() *string {
+							return &markdownImage.MarkdownName
+						}),
+						LineNumber: lo.TernaryF(markdownImage == nil, func() *int { return nil }, func() *int {
+							return &markdownImage.LineNumber
+						}),
+						ImageTag: lo.TernaryF(markdownImage == nil, func() *string { return nil }, func() *string {
+							return &markdownImage.ImageTag
+						}),
 					}
 				})
 
@@ -65,7 +71,7 @@ var listCmd = &cobra.Command{
 							func() string { return *v.ImageTag },
 						),
 						lo.TernaryF(v.LineNumber == nil,
-							func() string { return "0" },
+							func() string { return "" },
 							func() string { return strconv.Itoa(*v.LineNumber) },
 						),
 						lo.TernaryF(v.MarkdownName == nil,
